@@ -1,23 +1,56 @@
 use std::{env, path};
-use fltk::{*, prelude::*};
+
+use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
+use gtk::{glib, Application};
+
+const APP_ID: &str = "com.bwally.DocDoodler";
+
 use img::ImageFormat;
 use pdfium_render::{document, prelude::*};
 
 
-fn main() {
+fn main() -> glib::ExitCode {
     let path = env::current_dir().unwrap();
     println!("workspace dir: {}", path.display());
 
+    // TODO logging
     match test_pdf_to_jpg() {
         Ok(_) => println!("pdf -> jpegs"),
         Err(e) => println!("{}", e),
     }
 
-    let app = app::App::default();
-    let mut window_main = window::Window::new(0, 0, 800, 600, "DocDoodler");
-    window_main.end();
-    window_main.show();
-    app.run().unwrap();
+    let app = Application::builder().application_id(APP_ID).build();
+    
+    app.connect_activate(build_ui);
+
+    app.run()
+}
+
+fn build_ui(app: &Application) {
+    let window = ApplicationWindow::builder()
+        .application(app)
+        .title("DocDoodler")
+        .build();
+
+    window.set_default_size(800, 600);
+
+    let scrolled_window = ScrolledWindow::builder().build();
+
+    let vbox = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .build();
+
+    for i in 0..5 {
+        let image = gtk::Image::from_file("./export-test-page-0.jpg");
+        image.set_pixel_size(500);
+        vbox.append(&image);
+    }
+
+    scrolled_window.set_child(Some(&vbox));
+
+    window.set_child(Some(&scrolled_window));
+
+    window.present();
 }
 
 fn test_pdf_to_jpg() -> Result<(), PdfiumError> {
