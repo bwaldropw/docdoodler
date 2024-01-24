@@ -1,10 +1,23 @@
-mod pdf_utils;
-use pdf_utils::{test_pdf_to_jpg, test_pdf_to_image};
+mod pdf;
+mod app_context;
+use app_context::ApplicationContext;
+use pdf::test_pdf_to_image;
 
 use std::env;
 
-use gtk::{glib, Application, Image};
+use gtk::{glib, Application, DrawingArea};
 use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
+use cairo::Context;
+
+#[macro_use]
+extern crate lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref APP_CONTEXT: Mutex<ApplicationContext> = Mutex::new(ApplicationContext {
+        path: String::new(),
+    });
+}
 
 const APP_ID: &str = "com.bwally.DocDoodler";
 
@@ -12,16 +25,11 @@ fn main() -> glib::ExitCode {
     let path = env::current_dir().unwrap();
     println!("workspace dir: {}", path.display());
 
-    // TODO logging
-    // match test_pdf_to_jpg() {
-    //     Ok(_) => println!("pdf -> jpegs"),
-    //     Err(e) => println!("{}", e),
-    // }
+    let mut app_context = APP_CONTEXT.lock().unwrap();
+    app_context.path = String::from("test/galileo.pdf");
 
     let app = Application::builder().application_id(APP_ID).build();
-
     app.connect_activate(build_ui);
-
     app.run()
 }
 
@@ -39,14 +47,26 @@ fn build_ui(app: &Application) {
         .orientation(gtk::Orientation::Vertical)
         .build();
 
-    let images = test_pdf_to_image();
-    for image in &images {
-        vbox.append(image);
-    }
-        
+    // let images = test_pdf_to_image();
+    // for image in &images {
+    //     vbox.append(image);
+    // }
+
+    // pixbuf vector to drawing area for each page
+
+
+
+
     scrolled_window.set_child(Some(&vbox));
 
     window.set_child(Some(&scrolled_window));
 
     window.present();
 }
+
+
+// todo app context
+
+// todo page drawing area
+
+// todo file load pdf to context
