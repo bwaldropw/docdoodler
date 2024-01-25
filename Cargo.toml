@@ -10,4 +10,3 @@ gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
 img = { package = "image", version = "0.24.8" }
 cairo-rs = "0.18.5"
 pdfium-render = "0.8.17"
-lazy_static = "1.4.0"

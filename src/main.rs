@@ -1,32 +1,17 @@
 mod pdf;
-mod app_context;
-use app_context::ApplicationContext;
-use pdf::test_pdf_to_image;
+use gtk::gdk_pixbuf::Pixbuf;
+use pdf::pdf_to_pixbuf;
 
 use std::env;
 
 use gtk::{glib, Application, DrawingArea};
 use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
-use cairo::Context;
-
-#[macro_use]
-extern crate lazy_static;
-use std::sync::Mutex;
-
-lazy_static! {
-    static ref APP_CONTEXT: Mutex<ApplicationContext> = Mutex::new(ApplicationContext {
-        path: String::new(),
-    });
-}
 
 const APP_ID: &str = "com.bwally.DocDoodler";
-
+ 
 fn main() -> glib::ExitCode {
     let path = env::current_dir().unwrap();
     println!("workspace dir: {}", path.display());
-
-    let mut app_context = APP_CONTEXT.lock().unwrap();
-    app_context.path = String::from("test/galileo.pdf");
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);
@@ -37,9 +22,11 @@ fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title("DocDoodler")
+        .default_width(800)
+        .default_height(600)
         .build();
 
-    window.set_default_size(800, 600);
+    window.set_widget_name("main_window");
 
     let scrolled_window = ScrolledWindow::builder().build();
 
@@ -47,15 +34,18 @@ fn build_ui(app: &Application) {
         .orientation(gtk::Orientation::Vertical)
         .build();
 
-    // let images = test_pdf_to_image();
-    // for image in &images {
-    //     vbox.append(image);
-    // }
+    // todo pdf_pixbuf error handling
+    let pdf_pixbuf = pdf_to_pixbuf().unwrap_or_else(|_| Vec::new());
+    
+    for page_pixbuf in &pdf_pixbuf {
+        let drawing_area = DrawingArea::new();
+        setup_drawing_area(&drawing_area, &page_pixbuf);
 
-    // pixbuf vector to drawing area for each page
+        let fixed_area = gtk::Fixed::new();
+        fixed_area.put(&drawing_area, 0.0, 0.0);
 
-
-
+        vbox.append(&fixed_area);
+    }
 
     scrolled_window.set_child(Some(&vbox));
 
@@ -64,6 +54,17 @@ fn build_ui(app: &Application) {
     window.present();
 }
 
+fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
+    let pixbuf = page_pixbuf.clone();
+    drawing_area.set_size_request(pixbuf.width(), pixbuf.height());
+    drawing_area.set_hexpand(false);
+    drawing_area.set_vexpand(false);
+    
+    drawing_area.set_draw_func(move |_, cr, _width, _height| {
+        cr.set_source_pixbuf(&pixbuf, 0.0, 0.0);
+        cr.paint();
+    });
+}
 
 // todo app context
 
