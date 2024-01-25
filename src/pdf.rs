@@ -5,14 +5,17 @@ use gtk::{
 
 use pdfium_render::prelude::*;
 
+use crate::APPCONTEXT;
+
 // todo pdf_to_pixbuf
 pub fn pdf_to_pixbuf() -> Result<Vec<Pixbuf>, Box<dyn std::error::Error>> {
+    let state = APPCONTEXT.lock();
     let pdfium = Pdfium::default();
-    let doc = pdfium.load_pdf_from_file("test/galileo.pdf", None)?;
+    let doc = pdfium.load_pdf_from_file(&state.pdf_path, None)?;
     let mut pdf_pixbuf: Vec<Pixbuf> = Vec::new();
 
     for (i, page) in doc.pages().iter().enumerate() {
-        let pixbuf = page_to_pixbuf(&page);
+        let pixbuf = page_to_pixbuf(&page, &state.render_config);
         match pixbuf {
             Ok(pixbuf) => pdf_pixbuf.push(pixbuf),
             Err(e) => {
@@ -21,15 +24,15 @@ pub fn pdf_to_pixbuf() -> Result<Vec<Pixbuf>, Box<dyn std::error::Error>> {
             }
         };
     }
-    
+
     Ok(pdf_pixbuf)
 }
 
 // todo page_to_pixbuf
-pub fn page_to_pixbuf(page: &PdfPage) -> Result<Pixbuf, Box<dyn std::error::Error>> {
-    let render_config = PdfRenderConfig::new()
-        .set_target_width(500);
-    
+pub fn page_to_pixbuf(
+    page: &PdfPage,
+    render_config: &PdfRenderConfig,
+) -> Result<Pixbuf, Box<dyn std::error::Error>> {
     let bitmap = page.render_with_config(&render_config)?;
     let width = bitmap.width();
     let height = bitmap.height();
@@ -43,7 +46,7 @@ pub fn page_to_pixbuf(page: &PdfPage) -> Result<Pixbuf, Box<dyn std::error::Erro
         width as i32,
         height as i32,
         4 * width as i32,
-    ); 
+    );
 
     Ok(pixbuf)
 }
