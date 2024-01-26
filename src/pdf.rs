@@ -7,7 +7,6 @@ use pdfium_render::prelude::*;
 
 use crate::APPCONTEXT;
 
-// todo pdf_to_pixbuf
 pub fn pdf_to_pixbuf() -> Result<Vec<Pixbuf>, Box<dyn std::error::Error>> {
     let state = APPCONTEXT.lock();
     let pdfium = Pdfium::default();
@@ -28,7 +27,6 @@ pub fn pdf_to_pixbuf() -> Result<Vec<Pixbuf>, Box<dyn std::error::Error>> {
     Ok(pdf_pixbuf)
 }
 
-// todo page_to_pixbuf
 pub fn page_to_pixbuf(
     page: &PdfPage,
     render_config: &PdfRenderConfig,

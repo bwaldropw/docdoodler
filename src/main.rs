@@ -1,15 +1,24 @@
 mod context;
 mod pdf;
+use cairo::glib::clone;
+use cairo::Context;
 use context::AppContext;
+use gtk::gdk::{ButtonEvent, EventType};
 use gtk::gdk_pixbuf::Pixbuf;
+use gtk::graphene::Point;
 use parking_lot::lock_api::Mutex;
 use pdf::pdf_to_pixbuf;
 
 use lazy_static::lazy_static;
 use parking_lot;
+use std::cell::RefCell;
 use std::env;
+use std::rc::Rc;
 
-use gtk::{glib, Application, DrawingArea};
+use gtk::{
+    gdk, glib, Application, DrawingArea, EventController, EventControllerKey,
+    EventControllerLegacy, GestureClick,
+};
 use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
 
 const APP_ID: &str = "com.bwally.DocDoodler";
@@ -69,14 +78,32 @@ fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
     drawing_area.set_hexpand(false);
     drawing_area.set_vexpand(false);
 
+    let click_pos = Rc::new(RefCell::new(None));
+
+    let gesture = GestureClick::new();
+    gesture.connect_pressed(clone!(@weak click_pos, @weak drawing_area => move |_, _, x, y| {
+        *click_pos.borrow_mut() = Some((x, y));
+        drawing_area.queue_draw();
+    }));
+
+    drawing_area.add_controller(gesture);
+
     drawing_area.set_draw_func(move |_, cr, _width, _height| {
         cr.set_source_pixbuf(&pixbuf, 0.0, 0.0);
         cr.paint();
+
+        draw_circle(cr, 500.0, 500.0);
+
+        if let Some((x, y)) = *click_pos.borrow() {
+            cr.set_source_rgb(0.0, 0.0, 0.0);
+            cr.arc(x, y, 10.0, 0.0, 2.0 * std::f64::consts::PI);
+            cr.fill();
+        }
     });
 }
 
-// todo app context
-
-// todo page drawing area
-
-// todo file load pdf to context
+fn draw_circle(cr: &Context, x: f64, y: f64) {
+    cr.set_source_rgb(0.0, 0.0, 0.0);
+    cr.arc(x, y, 100.0, 0.0, 2.0 * std::f64::consts::PI);
+    cr.fill();
+}
