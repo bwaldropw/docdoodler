@@ -1,8 +1,8 @@
 mod context;
 mod pdf;
-use cairo::glib::clone;
-use cairo::Context;
-use context::AppContext;
+use cairo::glib::{clone, Propagation};
+use cairo::{Context, ImageSurface};
+use context::{AppContext, DrawType};
 use gtk::gdk::{ButtonEvent, EventType};
 use gtk::gdk_pixbuf::Pixbuf;
 use gtk::graphene::Point;
@@ -14,6 +14,7 @@ use parking_lot;
 use std::cell::RefCell;
 use std::env;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use gtk::{
     gdk, glib, Align, Application, DrawingArea, EventController, EventControllerKey,
@@ -24,7 +25,8 @@ use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
 const APP_ID: &str = "com.bwally.DocDoodler";
 
 lazy_static! {
-    static ref APPCONTEXT: parking_lot::Mutex<AppContext> = Mutex::new(AppContext::new());
+    static ref APPCONTEXT: Arc<parking_lot::Mutex<AppContext>> =
+        Arc::new(Mutex::new(AppContext::new()));
 }
 
 fn main() -> glib::ExitCode {
@@ -44,7 +46,24 @@ fn build_ui(app: &Application) {
         .default_height(600)
         .build();
 
-    window.set_widget_name("main_window");
+    let app_context = Arc::clone(&APPCONTEXT);
+
+    let keyboard_controller = gtk::EventControllerKey::new();
+    keyboard_controller.connect_key_pressed(move |_, key, _, _| {
+        let mut state = app_context.lock();
+        match key {
+            gdk::Key::q => {
+                state.draw_type = DrawType::PEN;
+                println!("pen");
+            }
+            gdk::Key::e => {
+                state.draw_type = DrawType::ERASE;
+                println!("erase");
+            }
+            _ => (),
+        }
+        Propagation::Proceed
+    });
 
     let scrolled_window = ScrolledWindow::builder().build();
 
@@ -69,12 +88,13 @@ fn build_ui(app: &Application) {
 
     scrolled_window.set_child(Some(&vbox));
 
+    window.add_controller(keyboard_controller);
     window.set_child(Some(&scrolled_window));
-
     window.present();
 }
 
 fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
+    let app_context = Arc::clone(&APPCONTEXT);
     let pixbuf = page_pixbuf.clone();
     drawing_area.set_size_request(pixbuf.width(), pixbuf.height());
     drawing_area.set_hexpand(false);
@@ -83,20 +103,42 @@ fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
     let line_points = Rc::new(RefCell::new(Vec::new()));
 
     let gesture = gtk::GestureDrag::new();
-    gesture.connect_drag_begin(clone!(@weak line_points => move |gesture, _, _| {
+    gesture.connect_drag_begin(
+        clone!(@weak line_points, @weak app_context => move |gesture, _, _| {
         let (start_x, start_y) = gesture.start_point().unwrap();
-        line_points.borrow_mut().push((start_x, start_y));
-    }));
+        let app_context = app_context.lock();
+
+            match app_context.draw_type {
+                DrawType::PEN => {
+                    line_points.borrow_mut().push((start_x, start_y));
+                },
+                DrawType::ERASE => {
+                    println!("bruh");
+                },
+            }
+        }),
+    );
     gesture.connect_drag_update(
-        clone!(@weak line_points, @weak drawing_area => move |gesture, _, _| {
+        clone!(@weak line_points, @weak drawing_area, @weak app_context => move |gesture, _, _| {
             let (offset_x, offset_y) = gesture.offset().unwrap();
             let (start_x, start_y) = gesture.start_point().unwrap();
-            line_points.borrow_mut().push((start_x + offset_x, start_y + offset_y));
+            let point = (start_x + offset_x, start_y + offset_y);
+
+            let app_context = app_context.lock();
+            match app_context.draw_type {
+                DrawType::PEN => {
+                    line_points.borrow_mut().push(point);
+                },
+                DrawType::ERASE => {
+                    println!("bruh");
+                },
+            }
+
             drawing_area.queue_draw();
         }),
     );
     gesture.connect_drag_end(clone!(@weak line_points => move |_, _, _| {
-        line_points.borrow_mut().clear();
+        //line_points.borrow_mut().clear();
     }));
 
     drawing_area.add_controller(gesture);
@@ -111,10 +153,4 @@ fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
             cr.fill();
         }
     });
-}
-
-fn draw_circle(cr: &Context, x: f64, y: f64) {
-    cr.set_source_rgb(0.0, 0.0, 0.0);
-    cr.arc(x, y, 100.0, 0.0, 2.0 * std::f64::consts::PI);
-    cr.fill();
 }
