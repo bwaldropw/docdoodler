@@ -1,11 +1,8 @@
 mod context;
 mod pdf;
 use cairo::glib::{clone, Propagation};
-use cairo::{Context, ImageSurface};
 use context::{AppContext, DrawType};
-use gtk::gdk::{ButtonEvent, EventType};
 use gtk::gdk_pixbuf::Pixbuf;
-use gtk::graphene::Point;
 use parking_lot::lock_api::Mutex;
 use pdf::pdf_to_pixbuf;
 
@@ -16,10 +13,7 @@ use std::env;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use gtk::{
-    gdk, glib, Align, Application, DrawingArea, EventController, EventControllerKey,
-    EventControllerLegacy, GestureClick,
-};
+use gtk::{gdk, glib, Align, Application, DrawingArea};
 use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
 
 const APP_ID: &str = "com.bwally.DocDoodler";
