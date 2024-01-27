@@ -2,8 +2,8 @@
 PDF annotation tool written in Rust.
 
 ### Stack
-`gtk4-rs`: Widget toolkit for creating the GUI.
-`pdfium-render`: PDF rendering to bitmaps and creating new PDF files.
+`gtk4-rs`: Widget toolkit for creating the GUI. <br>
+`pdfium-render`: PDF rendering to bitmaps and creating new PDF files. <br>
 `lazy_static`: Global context for app states.
 
 ### Build Instructions
@@ -22,18 +22,18 @@ cargo run
 - [x] render pdf pages
 - [x] create drawing surfaces
 - [x] pen tool
-    - [] line interpolation
-- [] erase tool
-- [] tool buttons
-- [] menu bar
-- [] app context
-    - [] draw states
-    - [] settings
-- [] file i/o
-    - [] load pdf file from computer
-    - [] save annotations
-    - [] export pdf w/ annotations
-- [] more tools
-    - [] highlights
-    - [] precision pen
+    - [ ] line interpolation
+- [ ] erase tool
+- [ ] tool buttons
+- [ ] menu bar
+- [ ] app context
+    - [ ] draw states
+    - [ ] settings
+- [ ] file i/o
+    - [ ] load pdf file from computer
+    - [ ] save annotations
+    - [ ] export pdf w/ annotations
+- [ ] more tools
+    - [ ] highlights
+    - [ ] precision pen
 ...
