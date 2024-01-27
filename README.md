@@ -2,13 +2,11 @@
 PDF annotation tool written in Rust.
 
 ### Stack
----
 [gtk4-rs](https://gtk-rs.org/): Widget toolkit for creating the GUI. <br>
 [pdfium-render](https://github.com/ajrcarey/pdfium-render): PDF rendering to bitmaps and creating new PDF files. <br>
 [lazy_static](https://crates.io/crates/lazy_static): Global context for app states.
 
 ### Build Instructions
----
 Requires Cargo and Rust to be installed on your system.
 ```bash
 git clone https://github.com/bwaldropw/docdoodler.git
@@ -17,8 +15,16 @@ cargo build
 cargo run
 ```
 
+### Features
+Current
+`Pen Tool`(b): Draw lines
+`Erase Tool`(e): Erase lines
+
+Future
+`Highlight Tool`(h)
+`Textbox`(t)
+
 ### TODOs
----
 - [x] load pdf with pdfium
 - [x] pdf -> bitmap
 - [x] create gtk app
@@ -26,17 +32,22 @@ cargo run
 - [x] create drawing surfaces
 - [x] pen tool
     - [ ] line interpolation
-- [ ] erase tool
+- [x] erase tool
 - [ ] tool buttons
+- [ ] tool cursors
+    - [ ] pen tool
+    - [ ] erase tool
 - [ ] menu bar
 - [ ] app context
     - [ ] draw states
     - [ ] settings
+    - [ ] save/load context from file
 - [ ] file i/o
     - [ ] load pdf file from computer
     - [ ] save annotations
     - [ ] export pdf w/ annotations
 - [ ] more tools
+    - [ ] undo/redo
     - [ ] highlights
     - [ ] precision pen
 ...

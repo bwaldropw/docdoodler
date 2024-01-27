@@ -13,7 +13,7 @@ use std::env;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use gtk::{gdk, glib, Align, Application, DrawingArea};
+use gtk::{gdk, glib, Align, Application, DrawingArea, Label};
 use gtk::{prelude::*, ApplicationWindow, ScrolledWindow};
 
 const APP_ID: &str = "com.bwally.DocDoodler";
@@ -36,8 +36,8 @@ fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title("DocDoodler")
-        .default_width(800)
-        .default_height(600)
+        .default_width(850)
+        .default_height(650)
         .build();
 
     let app_context = Arc::clone(&APPCONTEXT);
@@ -45,17 +45,19 @@ fn build_ui(app: &Application) {
     let keyboard_controller = gtk::EventControllerKey::new();
     keyboard_controller.connect_key_pressed(move |_, key, _, _| {
         let mut state = app_context.lock();
+
         match key {
-            gdk::Key::q => {
+            gdk::Key::b => {
                 state.draw_type = DrawType::PEN;
-                println!("pen");
+                println!("pen tool");
             }
             gdk::Key::e => {
                 state.draw_type = DrawType::ERASE;
-                println!("erase");
+                println!("erase tool");
             }
             _ => (),
         }
+
         Propagation::Proceed
     });
 
@@ -70,6 +72,7 @@ fn build_ui(app: &Application) {
     // todo pdf_pixbuf error handling
     let pdf_pixbuf = pdf_to_pixbuf().unwrap_or_else(|_| Vec::new());
 
+    let mut page_index: u32 = 1;
     for page_pixbuf in &pdf_pixbuf {
         let drawing_area = DrawingArea::new();
         setup_drawing_area(&drawing_area, &page_pixbuf);
@@ -78,6 +81,17 @@ fn build_ui(app: &Application) {
         fixed_area.put(&drawing_area, 0.0, 0.0);
 
         vbox.append(&fixed_area);
+
+        let label_str = format!("<span foreground=\"#9b9b9e\">Page {}</span>", page_index);
+        let page_label = Label::builder()
+            .use_markup(true)
+            .label(&label_str)
+            .margin_top(10)
+            .margin_bottom(10)
+            .build();
+        page_index += 1;
+
+        vbox.append(&page_label);
     }
 
     scrolled_window.set_child(Some(&vbox));
@@ -106,9 +120,7 @@ fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
                 DrawType::PEN => {
                     line_points.borrow_mut().push((start_x, start_y));
                 },
-                DrawType::ERASE => {
-                    println!("bruh");
-                },
+                _ => (),
             }
         }),
     );
@@ -124,7 +136,11 @@ fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
                     line_points.borrow_mut().push(point);
                 },
                 DrawType::ERASE => {
-                    println!("bruh");
+                    line_points.borrow_mut().retain(|&(x,y)| {
+                        let dx = x - point.0;
+                        let dy = y - point.1;
+                        dx * dx + dy * dy > 100.0
+                    })
                 },
             }
 
