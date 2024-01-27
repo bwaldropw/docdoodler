@@ -2,11 +2,13 @@
 PDF annotation tool written in Rust.
 
 ### Stack
-`gtk4-rs`: Widget toolkit for creating the GUI. <br>
-`pdfium-render`: PDF rendering to bitmaps and creating new PDF files. <br>
-`lazy_static`: Global context for app states.
+---
+[gtk4-rs](https://gtk-rs.org/): Widget toolkit for creating the GUI. <br>
+[pdfium-render](https://github.com/ajrcarey/pdfium-render): PDF rendering to bitmaps and creating new PDF files. <br>
+[lazy_static](https://crates.io/crates/lazy_static): Global context for app states.
 
 ### Build Instructions
+---
 Requires Cargo and Rust to be installed on your system.
 ```bash
 git clone https://github.com/bwaldropw/docdoodler.git
@@ -16,6 +18,7 @@ cargo run
 ```
 
 ### TODOs
+---
 - [x] load pdf with pdfium
 - [x] pdf -> bitmap
 - [x] create gtk app
