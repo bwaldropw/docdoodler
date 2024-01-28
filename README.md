@@ -9,7 +9,6 @@ PDF annotation tool written in Rust.
 [lazy_static](https://crates.io/crates/lazy_static): Global context for app states.
 
 ### Build Instructions
-Requires Cargo and Rust to be installed on your system.
 ```bash
 git clone https://github.com/bwaldropw/docdoodler.git
 cd docdoodler
@@ -30,7 +29,7 @@ cargo run
 - [x] pen tool
     - [ ] line interpolation
 - [x] erase tool
-- [ ] tool buttons
+- [x] tool buttons
 - [ ] tool cursors
     - [ ] pen tool
     - [ ] erase tool
