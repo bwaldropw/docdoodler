@@ -1,6 +1,8 @@
 ## DocDoodler
 PDF annotation tool written in Rust.
 
+![Alt Text](https://i.giphy.com/h8yjHJwiibuxe3lFVS.webp)
+
 ### Stack
 [gtk4-rs](https://gtk-rs.org/): Widget toolkit for creating the GUI. <br>
 [pdfium-render](https://github.com/ajrcarey/pdfium-render): PDF rendering to bitmaps and creating new PDF files. <br>

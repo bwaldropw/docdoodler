@@ -183,7 +183,7 @@ fn setup_drawing_area(drawing_area: &DrawingArea, page_pixbuf: &Pixbuf) {
                     line_points.borrow_mut().retain(|&(x,y)| {
                         let dx = x - point.0;
                         let dy = y - point.1;
-                        dx * dx + dy * dy > 200.0
+                        dx * dx + dy * dy > 500.0
                     })
                 },
             }
