@@ -16,13 +16,8 @@ cargo run
 ```
 
 ### Features
-Current
-`Pen Tool`(b): Draw lines
-`Erase Tool`(e): Erase lines
-
-Future
-`Highlight Tool`(h)
-`Textbox`(t)
+`Pen Tool`(b): Draw lines <br>
+`Erase Tool`(e): Erase lines <br>
 
 ### TODOs
 - [x] load pdf with pdfium
@@ -38,6 +33,7 @@ Future
     - [ ] pen tool
     - [ ] erase tool
 - [ ] menu bar
+- [ ] refactor main.rs
 - [ ] app context
     - [ ] draw states
     - [ ] settings
@@ -50,4 +46,4 @@ Future
     - [ ] undo/redo
     - [ ] highlights
     - [ ] precision pen
-...
+ ...
