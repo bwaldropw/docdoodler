@@ -4,9 +4,9 @@ PDF annotation tool written in Rust.
 ![Alt Text](https://i.giphy.com/h8yjHJwiibuxe3lFVS.webp)
 
 ### Stack
-[gtk4-rs](https://gtk-rs.org/){:target="_blank"}: Widget toolkit for creating the GUI. <br>
-[pdfium-render](https://github.com/ajrcarey/pdfium-render){:target="_blank"}: PDF rendering to bitmaps and creating new PDF files. <br>
-[lazy_static](https://crates.io/crates/lazy_static){:target="_blank"}: Global context for app states.
+[gtk4-rs](https://gtk-rs.org/) : Widget toolkit for creating the GUI. <br>
+[pdfium-render](https://github.com/ajrcarey/pdfium-render) : PDF rendering to bitmaps and creating new PDF files. <br>
+[lazy_static](https://crates.io/crates/lazy_static) : Global context for app states.
 
 ### Build Instructions
 ```bash
